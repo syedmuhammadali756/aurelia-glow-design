@@ -5,28 +5,40 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        solid:
+          "btn-luxe bg-espresso text-ivory hover:text-espresso border border-espresso",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          "btn-luxe border border-espresso text-espresso bg-transparent hover:text-ivory hover:[&::before]:bg-espresso",
+        "outline-luxe":
+          "border border-espresso text-espresso bg-transparent hover:bg-espresso hover:text-ivory",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-espresso underline-offset-4 hover:underline",
+        pill: "btn-luxe bg-espresso text-ivory rounded-full hover:text-espresso border border-espresso",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "h-11 px-6 text-sm tracking-wide",
+        sm: "h-9 px-4 text-xs tracking-wide",
+        lg: "h-12 px-8 text-sm tracking-wider uppercase",
+        xl: "h-14 px-10 text-sm tracking-[0.18em] uppercase",
+        icon: "h-10 w-10 rounded-full",
+      },
+      shape: {
+        sharp: "rounded-none",
+        soft: "rounded-md",
+        pill: "rounded-full",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      shape: "soft",
     },
   },
 );
@@ -37,10 +49,10 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, shape, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp className={cn(buttonVariants({ variant, size, shape, className }))} ref={ref} {...props} />
     );
   },
 );
