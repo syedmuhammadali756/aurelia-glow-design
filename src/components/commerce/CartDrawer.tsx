@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { X, ShoppingBag, Plus, Minus } from "lucide-react";
+import { X, ShoppingBag, Plus, Minus, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useCartStore } from "@/store/cart";
 import { useUIStore } from "@/store/ui";
 import { Button } from "@/components/ui/button";
-import { formatPrice, PRODUCTS } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import { SITE } from "@/data/site";
 
 export function CartDrawer() {
@@ -13,9 +13,14 @@ export function CartDrawer() {
   const subtotal = useCartStore((s) => s.subtotal());
   const updateQty = useCartStore((s) => s.updateQty);
   const remove = useCartStore((s) => s.remove);
+  const checkoutUrl = useCartStore((s) => s.checkoutUrl);
+  const isLoading = useCartStore((s) => s.isLoading);
+  const isSyncing = useCartStore((s) => s.isSyncing);
+  const syncCart = useCartStore((s) => s.syncCart);
 
   useEffect(() => {
     if (!isCartOpen) return;
+    syncCart();
     document.body.style.overflow = "hidden";
     const k = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
     window.addEventListener("keydown", k);
@@ -23,7 +28,13 @@ export function CartDrawer() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", k);
     };
-  }, [isCartOpen, closeCart]);
+  }, [isCartOpen, closeCart, syncCart]);
+
+  const handleCheckout = () => {
+    if (!checkoutUrl) return;
+    window.open(checkoutUrl, "_blank");
+    closeCart();
+  };
 
   if (!isCartOpen) return null;
 
