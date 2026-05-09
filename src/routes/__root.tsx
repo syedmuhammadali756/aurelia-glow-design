@@ -16,6 +16,7 @@ import { MobileMenu } from "@/components/layout/MobileMenu";
 import { CartDrawer } from "@/components/commerce/CartDrawer";
 import { SearchOverlay } from "@/components/commerce/SearchOverlay";
 import { QuickViewModal } from "@/components/commerce/QuickViewModal";
+import { useCartSync } from "@/hooks/use-cart-sync";
 
 function NotFoundComponent() {
   return (
@@ -92,6 +93,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useCartSync();
 
   return (
     <QueryClientProvider client={queryClient}>
