@@ -60,8 +60,8 @@ export function Header() {
           </div>
 
           {/* Logo */}
-          <Link to="/" className="lg:flex-1 flex items-center justify-center lg:justify-start">
-            <span className="display-serif text-2xl md:text-[28px] tracking-[0.04em] leading-none">
+          <Link to="/" className="lg:flex-1 flex items-center justify-center lg:justify-start whitespace-nowrap">
+            <span className="display-serif text-[19px] sm:text-[22px] md:text-[26px] lg:text-[28px] tracking-[0.04em] leading-none">
               Aurelia <span className="italic">Glow</span>
             </span>
           </Link>
