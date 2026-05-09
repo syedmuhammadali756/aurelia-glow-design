@@ -103,6 +103,7 @@ export function CartDrawer() {
                     </div>
                   </div>
                 </li>
+              ))}
             </ul>
 
             <footer className="border-t border-border px-6 py-5 space-y-4">
