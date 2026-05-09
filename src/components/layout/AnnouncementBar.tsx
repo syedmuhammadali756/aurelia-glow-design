@@ -21,13 +21,13 @@ export function AnnouncementBar() {
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-espresso text-ivory text-[11px] tracking-[0.18em] uppercase">
-      <div className="container-luxe flex items-center justify-center py-2.5">
-        <div className="relative h-4 overflow-hidden">
+    <div className="relative bg-espresso text-ivory text-[10px] sm:text-[11px] tracking-[0.16em] sm:tracking-[0.18em] uppercase">
+      <div className="container-luxe flex items-center justify-center py-2.5 px-10">
+        <div className="relative h-4 overflow-hidden max-w-full">
           {ANNOUNCEMENT_MESSAGES.map((msg, i) => (
             <div
               key={i}
-              className="absolute inset-0 transition-all duration-700 ease-out whitespace-nowrap"
+              className="absolute inset-0 transition-all duration-700 ease-out whitespace-nowrap text-center"
               style={{
                 opacity: i === idx ? 1 : 0,
                 transform: `translateY(${(i - idx) * 100}%)`,
@@ -36,7 +36,6 @@ export function AnnouncementBar() {
               {msg}
             </div>
           ))}
-          {/* Sizer */}
           <div className="invisible whitespace-nowrap">{ANNOUNCEMENT_MESSAGES[idx]}</div>
         </div>
         <button
@@ -46,7 +45,7 @@ export function AnnouncementBar() {
             setDismissed(true);
             sessionStorage.setItem("aurelia-announce-dismissed", "1");
           }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
+          className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
         >
           <X className="h-3.5 w-3.5" />
         </button>
