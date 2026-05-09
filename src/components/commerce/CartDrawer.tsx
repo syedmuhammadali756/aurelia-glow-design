@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { X, ShoppingBag, Plus, Minus } from "lucide-react";
+import { X, ShoppingBag, Plus, Minus, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useCartStore } from "@/store/cart";
 import { useUIStore } from "@/store/ui";
 import { Button } from "@/components/ui/button";
-import { formatPrice, PRODUCTS } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import { SITE } from "@/data/site";
 
 export function CartDrawer() {
@@ -13,9 +13,14 @@ export function CartDrawer() {
   const subtotal = useCartStore((s) => s.subtotal());
   const updateQty = useCartStore((s) => s.updateQty);
   const remove = useCartStore((s) => s.remove);
+  const checkoutUrl = useCartStore((s) => s.checkoutUrl);
+  const isLoading = useCartStore((s) => s.isLoading);
+  const isSyncing = useCartStore((s) => s.isSyncing);
+  const syncCart = useCartStore((s) => s.syncCart);
 
   useEffect(() => {
     if (!isCartOpen) return;
+    syncCart();
     document.body.style.overflow = "hidden";
     const k = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
     window.addEventListener("keydown", k);
@@ -23,14 +28,20 @@ export function CartDrawer() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", k);
     };
-  }, [isCartOpen, closeCart]);
+  }, [isCartOpen, closeCart, syncCart]);
+
+  const handleCheckout = () => {
+    if (!checkoutUrl) return;
+    window.open(checkoutUrl, "_blank");
+    closeCart();
+  };
 
   if (!isCartOpen) return null;
 
   const threshold = SITE.freeShippingThreshold;
   const progress = Math.min(100, (subtotal / threshold) * 100);
   const remaining = Math.max(0, threshold - subtotal);
-  const recommended = PRODUCTS.find((p) => !items.some((i) => i.productId === p.id)) ?? PRODUCTS[3];
+  
 
   return (
     <div className="fixed inset-0 z-50">
@@ -93,27 +104,6 @@ export function CartDrawer() {
                   </div>
                 </li>
               ))}
-              {/* Recommended */}
-              <li className="px-6 py-5 bg-surface-soft">
-                <div className="text-[11px] tracking-[0.18em] uppercase text-rose-taupe mb-3">Pairs well with</div>
-                <div className="flex gap-4">
-                  <div className="h-20 w-16 bg-surface-warm overflow-hidden">
-                    <img src={recommended.images[0].src} alt={recommended.title} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="flex-1 flex flex-col">
-                    <p className="text-sm font-medium">{recommended.title}</p>
-                    <p className="text-xs text-muted-foreground mb-2">{formatPrice(recommended.price)}</p>
-                    <Link
-                      to="/products/$handle"
-                      params={{ handle: recommended.handle }}
-                      onClick={closeCart}
-                      className="text-[11px] tracking-[0.18em] uppercase link-underline self-start"
-                    >
-                      View
-                    </Link>
-                  </div>
-                </div>
-              </li>
             </ul>
 
             <footer className="border-t border-border px-6 py-5 space-y-4">
@@ -130,7 +120,22 @@ export function CartDrawer() {
                 <span className="text-[11px] tracking-[0.18em] uppercase text-rose-taupe">Subtotal</span>
                 <span className="display-serif text-2xl">{formatPrice(subtotal)}</span>
               </div>
-              <Button variant="solid" size="lg" shape="sharp" className="w-full">Checkout</Button>
+              <Button
+                variant="solid"
+                size="lg"
+                shape="sharp"
+                className="w-full"
+                onClick={handleCheckout}
+                disabled={!checkoutUrl || isLoading || isSyncing}
+              >
+                {isLoading || isSyncing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : checkoutUrl ? (
+                  "Checkout with Shopify"
+                ) : (
+                  "Add a product to checkout"
+                )}
+              </Button>
               <button onClick={closeCart} className="w-full text-center text-[11px] tracking-[0.18em] uppercase link-underline">Continue shopping</button>
             </footer>
           </>

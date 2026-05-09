@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { PRODUCTS } from "@/data/products";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useShopifyProducts } from "@/hooks/use-shopify";
+import { shopifyToProduct } from "@/lib/shopify";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/shop")({
@@ -17,59 +18,34 @@ export const Route = createFileRoute("/shop")({
   component: ShopPage,
 });
 
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "Glow Kit", label: "Kits" },
-  { id: "Foundation", label: "Foundation" },
-  { id: "Palette", label: "Palettes" },
-  { id: "Powder", label: "Powder" },
-  { id: "Tool", label: "Brushes" },
-];
-
 const SORTS = [
   { id: "featured", label: "Featured" },
   { id: "price-asc", label: "Price · Low to high" },
   { id: "price-desc", label: "Price · High to low" },
-  { id: "rating", label: "Top rated" },
 ];
 
 function ShopPage() {
-  const [filter, setFilter] = useState<string>("all");
   const [sort, setSort] = useState<string>("featured");
+  const { data, isLoading } = useShopifyProducts();
 
   const products = useMemo(() => {
-    let list = filter === "all" ? PRODUCTS : PRODUCTS.filter((p) => p.productType === filter || p.productType === "Kit" && filter === "Glow Kit");
-    if (filter === "Glow Kit") list = PRODUCTS.filter((p) => p.productType === "Glow Kit" || p.productType === "Kit");
-    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-    if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    const list = (data ?? []).map((p) => shopifyToProduct(p.node));
+    if (sort === "price-asc") return [...list].sort((a, b) => a.price - b.price);
+    if (sort === "price-desc") return [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [filter, sort]);
+  }, [data, sort]);
 
   return (
     <>
       <PageHeader
         eyebrow="The Collection"
         title="Shop the ritual"
-        subtitle="Six considered pieces, designed to layer beautifully into one effortless glow routine."
+        subtitle="Considered pieces, designed to layer beautifully into one effortless glow routine."
       />
       <section className="container-luxe py-12 md:py-16">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
-          <div className="flex flex-wrap gap-2">
-            {FILTERS.map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setFilter(f.id)}
-                className={cn(
-                  "px-4 h-9 text-[11px] tracking-[0.18em] uppercase border transition-colors",
-                  filter === f.id
-                    ? "bg-espresso text-ivory border-espresso"
-                    : "bg-transparent text-espresso border-border hover:border-espresso",
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground">
+            {isLoading ? "Loading…" : `${products.length} product${products.length === 1 ? "" : "s"}`}
           </div>
           <div className="flex items-center gap-3">
             <label className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground">Sort</label>
@@ -85,8 +61,23 @@ function ShopPage() {
           </div>
         </div>
 
-        {products.length === 0 ? (
-          <div className="py-24 text-center text-muted-foreground">No products match your filter.</div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <div className="aspect-[4/5] bg-surface-warm animate-pulse" />
+                <div className="h-3 bg-surface-warm animate-pulse w-2/3" />
+                <div className="h-3 bg-surface-warm animate-pulse w-1/3" />
+              </div>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="py-24 text-center">
+            <h3 className="display-serif text-2xl mb-2">No products found</h3>
+            <p className="text-sm text-muted-foreground">
+              Add a product to your Shopify store to see it here.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
             {products.map((p) => <ProductCard key={p.id} product={p} />)}
